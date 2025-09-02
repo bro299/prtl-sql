@@ -1,6 +1,6 @@
 # app_sqlite.py - Versi lengkap dengan tambahan tombol download dan FAQ
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_file
 import sqlite3
 import os
 import re
@@ -345,7 +345,7 @@ def index():
             <!-- Download Button -->
             <div class="row justify-content-center mb-4">
                 <div class="col-lg-8 text-center">
-                    <a href="https://biteblob.com/Information/kUxw1tKiJi22gS/#dpr_data_clean.csv" class="btn btn-success btn-lg">
+                    <a href="/download" class="btn btn-success btn-lg">
                         <i class="fas fa-download me-2"></i> Download Data DPR (CSV)
                     </a>
                 </div>
@@ -705,6 +705,3 @@ if __name__ == '__main__':
     
     # Production settings untuk Render
     app.run(host='0.0.0.0', port=port, debug=False)
-
-
-
