@@ -1,3 +1,5 @@
 pandas==2.0.3
 numpy==1.24.4
 sqlite-utils==3.35
+flask==2.3.2
+flask-cors==3.0.10
