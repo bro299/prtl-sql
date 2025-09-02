@@ -262,11 +262,8 @@ def index():
     <link rel="canonical" href="https://www.dpr.go.id/">
     <meta name="google-site-verification" content="JtgNVwnmHRdM1FfwcKIEXv1EJ8DuTu5kYqyFcpoAo_c" />
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Structured Data / Schema.org -->
     <script type="application/ld+json">
@@ -740,4 +737,5 @@ if __name__ == '__main__':
     
     # Production settings untuk Render
     app.run(host='0.0.0.0', port=port, debug=False)
+
 
