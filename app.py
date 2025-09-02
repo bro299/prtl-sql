@@ -225,6 +225,8 @@ def index():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <!-- Basic SEO Meta Tags -->
     <title>🏛️ Portal Data DPR RI - Informasi Anggota dan Data Parlemen Indonesia</title>
@@ -262,40 +264,6 @@ def index():
     <link rel="canonical" href="https://www.dpr.go.id/">
     <meta name="google-site-verification" content="JtgNVwnmHRdM1FfwcKIEXv1EJ8DuTu5kYqyFcpoAo_c" />
     
-     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Structured Data / Schema.org -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "GovernmentOrganization",
-        "name": "Dewan Perwakilan Rakyat Republik Indonesia",
-        "alternateName": "DPR RI",
-        "url": "https://www.dpr.go.id/",
-        "logo": "https://www.dpr.go.id/images/dpr-logo.png",
-        "description": "Portal resmi data DPR RI yang menyediakan informasi lengkap tentang anggota parlemen, fraksi, komisi, dan kegiatan legislatif Dewan Perwakilan Rakyat Republik Indonesia.",
-        "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "Jl. Jenderal Gatot Subroto",
-            "addressLocality": "Jakarta Pusat",
-            "addressRegion": "DKI Jakarta",
-            "postalCode": "10270",
-            "addressCountry": "ID"
-        },
-        "contactPoint": {
-            "@type": "ContactPoint",
-            "contactType": "customer service",
-            "availableLanguage": ["Indonesian"]
-        },
-        "sameAs": [
-            "https://www.facebook.com/dprri.official",
-            "https://twitter.com/dpr_ri",
-            "https://www.instagram.com/dpr_ri/",
-            "https://www.youtube.com/channel/UCvKNfZ8SBGz8kCfOV6iBc2w"
-        ]
-    }
-    </script>
         <style>
             .hero-section {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -737,5 +705,6 @@ if __name__ == '__main__':
     
     # Production settings untuk Render
     app.run(host='0.0.0.0', port=port, debug=False)
+
 
 
