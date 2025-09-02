@@ -1,4 +1,5 @@
-# app_sqlite_render.py - Version khusus untuk Render
+# app_sqlite.py - Versi lengkap dengan tambahan tombol download dan FAQ
+
 from flask import Flask, render_template, request, jsonify
 import sqlite3
 import os
@@ -37,7 +38,7 @@ class DPRSQLiteSearch:
         return conn
     
     def search_by_name(self, query, limit=25):
-        """Pencarian dengan SQLite - optimized untuk Render"""
+        """Pencarian dengan SQLite - optimized untuk Render, memuat semua field seperti app.py"""
         if not query or not query.strip():
             return []
         
@@ -71,19 +72,153 @@ class DPRSQLiteSearch:
             results = cursor.fetchall()
             conn.close()
             
-            return [dict(row) for row in results]
+            # Clean records mirip dengan app.py
+            cleaned_results = [self.clean_member_record(dict(row)) for row in results]
+            
+            return cleaned_results
             
         except Exception as e:
             print(f"Search error: {e}")
             conn.close()
             return []
 
+    def clean_member_record(self, record):
+        """Clean up a member record for display, mirip dengan fungsi di app.py"""
+        
+        # Clean up organization field
+        if 'organisasi' in record and record['organisasi']:
+            record['organisasi_clean'] = self.extract_organizations(record['organisasi'])
+        else:
+            record['organisasi_clean'] = 'Tidak tersedia'
+        
+        # Ensure kota_lahir is available
+        if 'kota_lahir' not in record or not record['kota_lahir']:
+            if 'ttl' in record:
+                record['kota_lahir'] = self.extract_birth_city(record['ttl'])
+            else:
+                record['kota_lahir'] = 'Tidak tersedia'
+        
+        # Ensure usia is calculated
+        if 'usia' not in record or not record['usia']:
+            if 'ttl' in record:
+                record['usia'] = self.calculate_age(record['ttl'])
+        
+        # Clean AKD field (remove brackets and quotes)
+        if 'akd_clean' in record and record['akd_clean']:
+            akd = str(record['akd_clean'])
+            akd = re.sub(r'[\[\]\'""]', '', akd)
+            akd = akd.replace(',', ', ')
+            record['akd_clean'] = akd
+        
+        # Ensure required fields have default values
+        required_fields = {
+            'nama': 'Nama tidak tersedia',
+            'fraksi': 'Fraksi tidak tersedia',
+            'dapil': 'Dapil tidak tersedia',
+            'akd_clean': 'Tidak tersedia',
+            'ttl': 'Tidak tersedia',
+            'agama': 'Tidak tersedia',
+            'kota_lahir': 'Tidak tersedia',
+            'usia_kategori': 'Tidak tersedia',
+            'is_kader': '0',
+            'is_dewan': '0',
+            'pendidikan': 'Tidak tersedia',
+            'pekerjaan': 'Tidak tersedia',
+            'organisasi': 'Tidak tersedia',
+            'pendidikan_clean': 'Tidak tersedia',
+            'organisasi_clean': 'Tidak tersedia'
+        }
+        
+        for field, default in required_fields.items():
+            if field not in record or not record[field]:
+                record[field] = default
+        
+        return record
+
+    def extract_education(self, edu_text):
+        """Extract clean education info from long text, dari app.py"""
+        if not edu_text or edu_text.strip() == '':
+            return 'Tidak tersedia'
+        
+        # Look for highest education level mentioned
+        edu_levels = ['S3', 'S2', 'S1', 'DIPLOMA', 'SMA', 'SMP', 'SD']
+        edu_text_upper = str(edu_text).upper()
+        
+        for level in edu_levels:
+            if level in edu_text_upper:
+                # Try to extract institution name after the level
+                pattern = rf'{level}[,\s]*([^.]+)'
+                match = re.search(pattern, edu_text_upper)
+                if match:
+                    institution = match.group(1).strip()
+                    return f"{level} - {institution}"
+                return level
+        
+        return str(edu_text)[:100] + '...' if len(str(edu_text)) > 100 else str(edu_text)
+    
+    def extract_organizations(self, org_text):
+        """Extract clean organization info, dari app.py"""
+        if not org_text or org_text.strip() == '':
+            return 'Tidak tersedia'
+        
+        # Split by common separators and take first few organizations
+        orgs = re.split(r'[,\d]+\.', str(org_text))
+        clean_orgs = []
+        
+        for org in orgs[:3]:  # Take first 3 organizations
+            org = org.strip()
+            if org and len(org) > 5:  # Filter out very short/meaningless entries
+                # Remove "Sebagai:" and year info
+                org = re.sub(r'Sebagai:.*?Tahun:.*?\d{4}.*?-.*?\d{0,4}', '', org)
+                org = org.strip()
+                if org:
+                    clean_orgs.append(org)
+        
+        return ', '.join(clean_orgs) if clean_orgs else str(org_text)[:100]
+    
+    def extract_birth_city(self, ttl):
+        """Extract birth city from TTL field, dari app.py"""
+        if not ttl or ttl.strip() == '':
+            return 'Tidak tersedia'
+        
+        # TTL format is usually "City / Date"
+        if '/' in str(ttl):
+            city = str(ttl).split('/')[0].strip()
+            return city if city else 'Tidak tersedia'
+        
+        return str(ttl)
+    
+    def calculate_age(self, ttl):
+        """Calculate age from TTL field, dari app.py"""
+        if not ttl or ttl.strip() == '':
+            return None
+        
+        try:
+            # Extract date part after "/"
+            if '/' in str(ttl):
+                date_part = str(ttl).split('/')[-1].strip()
+                
+                # Try to parse various date formats
+                date_formats = ['%d %B %Y', '%d %b %Y', '%d-%m-%Y', '%d/%m/%Y']
+                
+                for fmt in date_formats:
+                    try:
+                        birth_date = datetime.strptime(date_part, fmt)
+                        age = datetime.now().year - birth_date.year
+                        return age if age > 0 and age < 100 else None
+                    except:
+                        continue
+        except:
+            pass
+        
+        return None
+
 # Initialize search engine
 dpr_search = DPRSQLiteSearch()
 
 @app.route('/')
 def index():
-    """Halaman utama dengan HTML built-in untuk Render"""
+    """Halaman utama dengan HTML built-in untuk Render, tambahan tombol download dan FAQ"""
     return '''
     <!DOCTYPE html>
     <html lang="id">
@@ -108,6 +243,7 @@ def index():
             .result-card {
                 transition: transform 0.2s;
                 border-radius: 10px;
+                cursor: pointer;
             }
             .result-card:hover {
                 transform: translateY(-5px);
@@ -115,6 +251,12 @@ def index():
             }
             .loading {
                 display: none;
+            }
+            .faq-section {
+                margin-top: 3rem;
+                background-color: #f8f9fa;
+                padding: 2rem;
+                border-radius: 10px;
             }
         </style>
     </head>
@@ -164,6 +306,15 @@ def index():
                 </div>
             </div>
 
+            <!-- Download Button -->
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-8 text-center">
+                    <a href="https://biteblob.com/Information/kUxw1tKiJi22gS/#dpr_data_clean.csv" class="btn btn-success btn-lg">
+                        <i class="fas fa-download me-2"></i> Download Data DPR (CSV)
+                    </a>
+                </div>
+            </div>
+
             <!-- Loading -->
             <div id="loading" class="loading text-center mb-4">
                 <div class="spinner-border text-primary" role="status">
@@ -174,6 +325,49 @@ def index():
 
             <!-- Results Section -->
             <div id="results"></div>
+
+            <!-- FAQ Section -->
+            <div class="faq-section">
+                <h3 class="mb-4">Mengapa Portal Ini Dibuat?</h3>
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Apa tujuan portal ini?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="faq1" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Portal ini dibuat sebagai bentuk partisipasi publik atas keresahan masyarakat terhadap kinerja DPR RI, khususnya menyusul aksi demonstrasi besar-besaran pada tahun 2025. Kami ingin meningkatkan transparansi dan akuntabilitas dengan menyediakan akses mudah ke data anggota DPR.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Mengapa transparansi penting?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faq2" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Masyarakat menuntut keterbukaan informasi tentang kinerja, kehadiran, dan aktivitas anggota DPR yang selama ini kurang transparan. Portal ini memberikan data lengkap untuk memungkinkan kontrol publik.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Bagaimana data ini membantu?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faq3" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Dengan menyediakan informasi seperti pendidikan, pekerjaan, dan organisasi anggota DPR, masyarakat dapat mengevaluasi kualitas dan komitmen wakil rakyat mereka, sekaligus mendorong akuntabilitas yang lebih besar.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Info Section -->
             <div class="row mt-5">
@@ -220,21 +414,36 @@ def index():
             </div>
         </footer>
 
+        <!-- Modal untuk Detail -->
+        <div class="modal fade" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="memberModalLabel">Detail Anggota DPR</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modalContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
         <script>
             function searchMembers() {
-                const query = document.getElementById('searchBox').value;
+                const query = document.getElementById('searchBox').value.trim();
                 const resultsDiv = document.getElementById('results');
                 const loadingDiv = document.getElementById('loading');
-                
-                if (!query.trim()) {
+
+                if (!query) {
                     resultsDiv.innerHTML = '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle"></i> Masukkan kata kunci pencarian</div>';
                     return;
                 }
-                
-                // Show loading
+
                 loadingDiv.style.display = 'block';
                 resultsDiv.innerHTML = '';
-                
+
                 fetch('/search', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -265,7 +474,7 @@ def index():
                     data.results.forEach(member => {
                         html += `
                             <div class="col-lg-4 col-md-6 mb-4">
-                                <div class="card result-card h-100">
+                                <div class="card result-card h-100" onclick='showDetail(${JSON.stringify(member)})'>
                                     <div class="card-body">
                                         <h6 class="card-title text-primary">
                                             <i class="fas fa-user"></i> ${member.nama || 'Nama tidak tersedia'}
@@ -294,6 +503,34 @@ def index():
                     loadingDiv.style.display = 'none';
                     resultsDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Error: ${error.message}</div>`;
                 });
+            }
+
+            function showDetail(member) {
+                const modalContent = document.getElementById('modalContent');
+                modalContent.innerHTML = `
+                    <p><strong>Nama:</strong> ${member.nama}</p>
+                    <p><strong>Fraksi:</strong> ${member.fraksi}</p>
+                    <p><strong>Partai:</strong> ${member.partai}</p>
+                    <p><strong>Dapil:</strong> ${member.dapil}</p>
+                    <p><strong>AKD Clean:</strong> ${member.akd_clean}</p>
+                    <p><strong>TTL:</strong> ${member.ttl}</p>
+                    <p><strong>Agama:</strong> ${member.agama}</p>
+                    <p><strong>Pendidikan:</strong> ${member.pendidikan}</p>
+                    <p><strong>Pekerjaan:</strong> ${member.pekerjaan}</p>
+                    <p><strong>Organisasi:</strong> ${member.organisasi}</p>
+                    <p><strong>Kota Lahir:</strong> ${member.kota_lahir}</p>
+                    <p><strong>Usia:</strong> ${member.usia ? member.usia : 'Tidak tersedia'}</p>
+                    <p><strong>Pendidikan Terakhir:</strong> ${member.pendidikan_terakhir}</p>
+                    <p><strong>Is Kader:</strong> ${member.is_kader}</p>
+                    <p><strong>Is Dewan:</strong> ${member.is_dewan}</p>
+                    <p><strong>Usia Kategori:</strong> ${member.usia_kategori}</p>
+                    <p><strong>Rank Partai:</strong> ${member.rank_partai ? member.rank_partai : 'Tidak tersedia'}</p>
+                    ${member.link_profil ? `<p><strong>Link Profil:</strong> <a href="${member.link_profil}" target="_blank">Lihat Profil</a></p>` : ''}
+                    ${member.link_foto ? `<p><strong>Foto:</strong> <img src="${member.link_foto}" alt="Foto Anggota" style="max-width: 200px;"></p>` : ''}
+                `;
+
+                const modal = new bootstrap.Modal(document.getElementById('memberModal'));
+                modal.show();
             }
             
             // Search on Enter key
@@ -332,6 +569,15 @@ def search():
     except Exception as e:
         print(f"Search error: {e}")
         return jsonify({'error': f'Terjadi kesalahan: {str(e)}'})
+
+@app.route('/download')
+def download():
+    """Provide download link for CSV data"""
+    csv_path = 'dpr_data_clean.csv'
+    if os.path.exists(csv_path):
+        return send_file(csv_path, as_attachment=True)
+    else:
+        return jsonify({'error': 'File data tidak tersedia'}), 404
 
 @app.route('/health')
 def health_check():
