@@ -348,6 +348,9 @@ def index():
                     <a href="/download" class="btn btn-success btn-lg">
                         <i class="fas fa-download me-2"></i> Download Data DPR (CSV)
                     </a>
+                    <a href="https://portal-dpr2.onrender.com/" target="_blank" class="btn btn-info btn-lg">
+                        <i class="fas fa-external-link-alt me-2"></i> Cek Data di Portal 2
+                    </a>
                 </div>
             </div>
 
@@ -705,3 +708,4 @@ if __name__ == '__main__':
     
     # Production settings untuk Render
     app.run(host='0.0.0.0', port=port, debug=False)
+
