@@ -221,13 +221,84 @@ def index():
     """Halaman utama dengan HTML built-in untuk Render, tambahan tombol download dan FAQ"""
     return '''
     <!DOCTYPE html>
-    <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>🏛️ Portal Data DPR RI</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Basic SEO Meta Tags -->
+    <title>🏛️ Portal Data DPR RI - Informasi Anggota dan Data Parlemen Indonesia</title>
+    <meta name="description" content="Portal resmi data DPR RI yang menyediakan informasi lengkap tentang anggota parlemen, fraksi, komisi, dan kegiatan legislatif Dewan Perwakilan Rakyat Republik Indonesia.">
+    <meta name="keywords" content="DPR RI, anggota DPR, parlemen Indonesia, data legislatif, fraksi DPR, komisi DPR, Dewan Perwakilan Rakyat">
+    <meta name="author" content="DPR RI">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Indonesian">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.dpr.go.id/">
+    <meta property="og:title" content="🏛️ Portal Data DPR RI - Informasi Anggota dan Data Parlemen Indonesia">
+    <meta property="og:description" content="Portal resmi data DPR RI yang menyediakan informasi lengkap tentang anggota parlemen, fraksi, komisi, dan kegiatan legislatif Dewan Perwakilan Rakyat Republik Indonesia.">
+    <meta property="og:image" content="https://www.dpr.go.id/images/dpr-logo.png">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:site_name" content="Portal Data DPR RI">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://www.dpr.go.id/">
+    <meta property="twitter:title" content="🏛️ Portal Data DPR RI - Informasi Anggota dan Data Parlemen Indonesia">
+    <meta property="twitter:description" content="Portal resmi data DPR RI yang menyediakan informasi lengkap tentang anggota parlemen, fraksi, komisi, dan kegiatan legislatif Dewan Perwakilan Rakyat Republik Indonesia.">
+    <meta property="twitter:image" content="https://www.dpr.go.id/images/dpr-logo.png">
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#1e40af">
+    <meta name="msapplication-TileColor" content="#1e40af">
+    <meta name="application-name" content="Portal Data DPR RI">
+    <meta name="apple-mobile-web-app-title" content="Portal Data DPR RI">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://www.dpr.go.id/">
+    <meta name="google-site-verification" content="JtgNVwnmHRdM1FfwcKIEXv1EJ8DuTu5kYqyFcpoAo_c" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    
+    <!-- Structured Data / Schema.org -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "GovernmentOrganization",
+        "name": "Dewan Perwakilan Rakyat Republik Indonesia",
+        "alternateName": "DPR RI",
+        "url": "https://www.dpr.go.id/",
+        "logo": "https://www.dpr.go.id/images/dpr-logo.png",
+        "description": "Portal resmi data DPR RI yang menyediakan informasi lengkap tentang anggota parlemen, fraksi, komisi, dan kegiatan legislatif Dewan Perwakilan Rakyat Republik Indonesia.",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Jl. Jenderal Gatot Subroto",
+            "addressLocality": "Jakarta Pusat",
+            "addressRegion": "DKI Jakarta",
+            "postalCode": "10270",
+            "addressCountry": "ID"
+        },
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "availableLanguage": ["Indonesian"]
+        },
+        "sameAs": [
+            "https://www.facebook.com/dprri.official",
+            "https://twitter.com/dpr_ri",
+            "https://www.instagram.com/dpr_ri/",
+            "https://www.youtube.com/channel/UCvKNfZ8SBGz8kCfOV6iBc2w"
+        ]
+    }
+    </script>
         <style>
             .hero-section {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -669,3 +740,4 @@ if __name__ == '__main__':
     
     # Production settings untuk Render
     app.run(host='0.0.0.0', port=port, debug=False)
+
